@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.renren.modules.platform.dao.AttrGroupAttrRelationDao">
+
+    <delete id="delByAttrId" parameterType="int">
+        DELETE FROM pms_attr_attrgroup WHERE attr_id = #{attrId}
+    </delete>
+    <delete id="delByAttrGroupId" parameterType="int">
+        DELETE FROM pms_attr_attrgroup WHERE attr_group_id = #{attrGroupId}
+    </delete>
+</mapper>

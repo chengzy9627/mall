@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.renren.modules.mall.dao.BrandDao">
+    <resultMap id="BrandRelCat" type="io.renren.modules.mall.entity.MallBrandRelCateEntity">
+        <result property="id" column="id"/>
+        <result property="brandId" column="brand_id"/>
+        <result property="brandName" column="brand_name"/>
+        <result property="catId" column="cat_id"/>
+        <result property="catName" column="name"/>
+    </resultMap>
+    <select id="queryBrandRCat" resultMap="BrandRelCat" parameterType="Long">
+        SELECT cb.id, cb.cat_id, cb.brand_id, c.name, b.brand_name FROM cat_brand cb, brand b, pms_category c WHERE cb.cat_id = c.cat_id AND cb.brand_id = b.brand_id AND b.brand_id=#{brandId}
+    </select>
+    <insert id="addBrandRelCat" parameterType="io.renren.modules.mall.entity.MallBrandRelCateEntity">
+        INSERT INTO cat_brand(cat_id,brand_id) VALUES (#{catId},#{brandId})
+    </insert>
+    <delete id="delBrandRelCat" parameterType="int">
+        DELETE FROM cat_brand WHERE id = #{id}
+    </delete>
+</mapper>

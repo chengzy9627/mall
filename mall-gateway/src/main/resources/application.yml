@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: path_cart
+          uri: lb://mall-admin
+          predicates:
+              - Path=/api/**
+          filters:
+              - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
+        - id: path_test
+          uri: http://www.baidu.com
+          predicates:
+              - Query=simle
+
+
+

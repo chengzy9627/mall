@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.renren.modules.platform.dao.AttrDao">
+    <resultMap id="attrResultMap" type="io.renren.modules.platform.entity.PlatformAttrEntity">
+        <result property="id" column="attr_id"/>
+        <result property="name" column="attr_name"/>
+        <result property="searchType" column="search_type"/>
+        <result property="icon" column="icon"/>
+        <result property="valueSelect" column="value_select"/>
+        <result property="enable" column="enable"/>
+        <result property="attrType" column="attr_type"/>
+        <result property="showDesc" column="show_desc"/>
+        <result property="valueType" column="value_type"/>
+        <result property="cateGory.id" column="catelog_id"/>
+        <result property="cateGory.label" column="name"/>
+        <collection property="relId" column="attr_id" select="queryRelId"></collection>
+        <collection property="attrGroup" column="attr_id" select="queryAttrGroup"></collection>
+    </resultMap>
+    <select id="querySpList" parameterType="map" resultMap="attrResultMap">
+        SELECT a.*, c.name
+        FROM pms_attr a, pms_category c
+        <where>
+            (a.attr_type = 1 OR a.attr_type = 2)  AND a.catelog_id = c.cat_id
+            <if test="id != null and id != '' ">
+                AND a.catelog_id = #{id}
+            </if>
+            <if test="name != null and name != '' ">
+                AND a.attr_name = #{name}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryRelId" resultType="int">
+        SELECT id FROM pms_attr_attrgroup_relation WHERE attr_id = #{attr_id}
+    </select>
+
+    <select id="querySellList" parameterType="map" resultMap="attrResultMap">
+        SELECT a.*, c.name
+        FROM pms_attr a, pms_category c
+        <where>
+            (a.attr_type = 0 OR a.attr_type = 2) AND a.catelog_id = c.cat_id
+            <if test="id != null and id != '' ">
+                AND a.catelog_id = #{id}
+            </if>
+            <if test="name != null and name != '' ">
+                AND a.attr_name = #{name}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryAttrGroup" resultType="io.renren.modules.platform.entity.PlatformAttrGroupEntity">
+        SELECT ag.attr_group_name name , ag.attr_group_id id FROM pms_attr_group ag , pms_attr_attrgroup_relation aar
+        WHERE  aar.attr_group_id = ag.attr_group_id AND aar.attr_id = #{attr_id}
+    </select>
+
+    <select id="queryAttrByAttrGroupId" resultType="io.renren.modules.platform.entity.PlatformAttrEntity">
+        SELECT a.attr_id id, a.attr_name name, value_select, aar.id relId FROM pms_attr a , pms_attr_attrgroup_relation aar
+        WHERE  aar.attr_id = a.attr_id AND aar.attr_group_id = #{attrGroupId}
+    </select>
+
+    <select id="queryAttrNoGroup" resultType="io.renren.modules.platform.entity.PlatformAttrEntity" parameterType="map">
+        SELECT attr_id id, attr_name name, value_select, icon FROM pms_attr
+        <where>
+            (attr_type = 1 OR attr_type = 2)
+            <if test="name != null and name != '' ">
+                AND attr_name = #{name}
+            </if>
+            AND attr_id NOT IN (SELECT a.attr_id FROM pms_attr a , pms_attr_attrgroup_relation aar WHERE a.attr_id = aar.attr_id)
+        </where>
+    </select>
+    
+    <insert id="addAttr" parameterType="io.renren.modules.platform.entity.PlatformAttrEntity">
+        INSERT INTO pms_attr(attr_id,attr_name,search_type,icon,value_select,attr_type,enable,catelog_id,show_desc,value_type)
+        VALUES (#{id},#{name},#{searchType},#{icon},#{valueSelect},#{attrType},#{enable},#{cateGory.id},#{showDesc},#{valueType})
+    </insert>
+
+    <update id="updateAttr" parameterType="io.renren.modules.platform.entity.PlatformAttrEntity">
+        UPDATE pms_attr
+        SET attr_name=#{name} ,search_type=#{searchType},icon=#{icon},value_select=#{valueSelect},attr_type=#{attrType},enable=#{enable},catelog_id=#{cateGory.id},show_desc=#{showDesc},value_type=#{valueType}
+        WHERE  attr_id = #{id}
+    </update>
+
+    <update id="updateCatelogId">
+        UPDATE pms_attr SET catelog_id = #{catelogId} WHERE attr_id = #{attrId}
+    </update>
+    <insert id="addRel">
+        INSERT INTO pms_attr_attrgroup_relation(attr_id,attr_group_id) VALUES (#{attrId},#{attrGroupId})
+    </insert>
+    <update id="updateRel">
+        UPDATE pms_attr_attrgroup_relation SET attr_group_id = #{attrGroupId} WHERE id = #{relId}
+    </update>
+</mapper>
